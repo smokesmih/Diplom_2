@@ -1,6 +1,7 @@
 import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,11 +17,14 @@ public class GetOrdersListTest {
         user = new User(faker.internet().emailAddress(), faker.internet().password(), String.valueOf(faker.name()));
         ingredientsForOrder = new IngredientsForOrder(OrdersMethods.getRandomIngredients(OrdersMethods.getIngredientsList()));
     }
+    @After
+    public void deleteTestsClients() {
+        UsersMethods.deleteUser(UsersMethods.getAuthToken(user));
+    }
 
     @Test
     @DisplayName("Проверка получения списка заказов по клиенту с авторизацией")
     public void getOrderList(){
-        user = new User(faker.internet().emailAddress(), faker.internet().password(), String.valueOf(faker.name()));
         UsersMethods.createUser(user);
         String authToken = UsersMethods.getAuthToken(user);
         OrdersMethods.createOrder(ingredientsForOrder, authToken);
@@ -34,7 +38,6 @@ public class GetOrdersListTest {
     @Test
     @DisplayName("Проверка получения списка заказов по клиенту без авторизации")
     public void getOrderListWithoutAuth(){
-        user = new User(faker.internet().emailAddress(), faker.internet().password(), String.valueOf(faker.name()));
         UsersMethods.createUser(user);
         String authToken = UsersMethods.getAuthToken(user);
         OrdersMethods.createOrder(ingredientsForOrder, authToken);

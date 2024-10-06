@@ -2,6 +2,7 @@ import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.aspectj.weaver.ast.Var;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,18 +18,23 @@ public class PathUserTest {
     public void setup() {
         user = new User(faker.internet().emailAddress(), faker.internet().password(), String.valueOf(faker.name()));
     }
+    @After
+    public void deleteTestsClients() {
+        UsersMethods.deleteUser(UsersMethods.getAuthToken(user));
+    }
 
     @Test
     @DisplayName("Проверка обновления поля email с авторизацией")
     public void autPathEmail() {
         UsersMethods.createUser(user);
         String authToken = UsersMethods.getAuthToken(user);
-        Response response = UsersMethods.changeUser(Credential.getDataForPathEmail(user), authToken);
+        Credential credential = Credential.getDataForPathEmail(user);
+        Response response = UsersMethods.changeUser(credential, authToken);
+        user.setEmail(credential.getEmail());
         int statusCode = response.then().extract().statusCode();
         Assert.assertEquals("При изменение  email клиента статус Код отличается от 200", 200, statusCode);
         Map<Var, Var> body = response.then().extract().jsonPath().getJsonObject("user");
         Assert.assertNotNull(body);
-        UsersMethods.deleteUser(authToken);
     }
 
     @Test
@@ -36,12 +42,13 @@ public class PathUserTest {
     public void autPathPassword() {
         UsersMethods.createUser(user);
         String authToken = UsersMethods.getAuthToken(user);
-        Response response = UsersMethods.changeUser(Credential.getDataForPathPassword(user), authToken);
+        Credential credential = Credential.getDataForPathPassword(user);
+        Response response = UsersMethods.changeUser(credential, authToken);
+        user.setPassword(credential.getPassword());
         int statusCode = response.then().extract().statusCode();
         Assert.assertEquals("При изменение  password клиента статус Код отличается от 200", 200, statusCode);
         Map<Var, Var> body = response.then().extract().jsonPath().getJsonObject("user");
         Assert.assertNotNull(body);
-        UsersMethods.deleteUser(authToken);
     }
 
     @Test
@@ -54,7 +61,6 @@ public class PathUserTest {
         Assert.assertEquals("При изменение  name клиента статус Код отличается от 200", 200, statusCode);
         Map<Var, Var> body = response.then().extract().jsonPath().getJsonObject("user");
         Assert.assertNotNull(body);
-        UsersMethods.deleteUser(authToken);
     }
 
     @Test
@@ -66,7 +72,6 @@ public class PathUserTest {
         Assert.assertEquals("При изменение  email клиента без авторизации статус Код отличается от 401", 401, statusCode);
         String body = response.then().extract().jsonPath().getString("message");
         Assert.assertEquals("При изменение  email, клиента без авторизации, неверное тело ответа", "You should be authorised", body);
-        UsersMethods.deleteUser(UsersMethods.getAuthToken(user));
     }
 
     @Test
@@ -78,7 +83,6 @@ public class PathUserTest {
         Assert.assertEquals("При изменение  password клиента без авторизации статус Код отличается от 401", 401, statusCode);
         String body = response.then().extract().jsonPath().getString("message");
         Assert.assertEquals("При изменение  password, клиента без авторизации, неверное тело ответа", "You should be authorised", body);
-        UsersMethods.deleteUser(UsersMethods.getAuthToken(user));
     }
 
     @Test
@@ -90,6 +94,5 @@ public class PathUserTest {
         Assert.assertEquals("При изменение  name клиента без авторизации статус Код отличается от 401", 401, statusCode);
         String body = response.then().extract().jsonPath().getString("message");
         Assert.assertEquals("При изменение  name, клиента без авторизации, неверное тело ответа", "You should be authorised", body);
-        UsersMethods.deleteUser(UsersMethods.getAuthToken(user));
     }
 }

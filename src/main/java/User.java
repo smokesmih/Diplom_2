@@ -1,9 +1,9 @@
 import java.util.Optional;
 
 public class User {
-    private  final  String email;
-    private  final String password;
-    private  final  String name;
+    private String email;
+    private String password;
+    private String name;
 
     public User(String email, String password, String name) {
         this.email = email;
@@ -22,6 +22,18 @@ public class User {
     public String getName() {
         return name;
     }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public void setEmail(String email) {
+            this.email= email;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+
     public User( String password, String name) {
         this.email = null;
         this.password = password;

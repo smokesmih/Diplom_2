@@ -35,8 +35,11 @@ public class UsersMethods {
 
     @Step("Получение токена авторизации")
     public static String getAuthToken(User user) {
+        String token = null;
+        if (user.getEmail() != null & user.getPassword() != null & user.getName() != null){
         String tokenForm = loginUser(user).then().extract().jsonPath().getString("accessToken");
-        return tokenForm.split(" ")[1];
+        token= tokenForm.split(" ")[1];}
+        return token;
     }
 
     @Step("Изменение данных  пользователя  с авторизацией")
@@ -59,12 +62,13 @@ public class UsersMethods {
     }
     @Step("Удаление пользователя")
     public static Response deleteUser(String authToken) {
+        if (authToken != null){
         return given()
                 .baseUri(STELLAR_BURGERS)
                 .auth().oauth2(authToken)
                 .header("Content-Type", "application/json")
-                .delete("/api/auth/user");
+                .delete("/api/auth/user");}
+        else  return  null;
     }
-
 
 }
